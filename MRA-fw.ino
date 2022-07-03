@@ -1,63 +1,62 @@
 #include <Servo.h>
 
 /*----------Initializing the Servo library, Servo Objects and Servo Pins----------*/
-const unsigned int totalServos = 6;
-const unsigned int totalButtons = 4;
+const uint8_t totalServos = 6;
+const uint8_t totalButtons = 4;
 
 Servo servoList[totalServos];
-int servoPins[totalServos] = {6, 7, 8, 9, 10, 11};
+const uint8_t servoPins[totalServos] = {6, 7, 8, 9, 10, 11};
 
 // Initializing Joystick X and Y Pins
-int joyPins[totalServos] = {A0, A1, A2, A3, A4, A5};
+const uint8_t joyPins[totalServos] = {A0, A1, A2, A3, A4, A5};
 
 // Joystick Switches
-int joySwitches[totalButtons] = {5, 2, 3, 4};
+const uint8_t joySwitches[totalButtons] = {5, 2, 3, 4};
 
 // Declaration of Variables
-int pos;
-int posCons[totalServos] = {500, 0, 0, 0, 0, 0};
-int posFinal[totalServos] = {500, 0, 0, 0, 0, 0};
+int16_t pos;
+int16_t posCons[totalServos] = {500, 0, 0, 0, 0, 0};
+int16_t posFinal[totalServos] = {500, 0, 0, 0, 0, 0};
 
 // Switch Pins STATES
-int oldJoyState[totalButtons]; // pB, 1, 2, 3
-int newJoyState[totalButtons];
+uint8_t oldJoyState[totalButtons]; // pB, 1, 2, 3
+uint8_t newJoyState[totalButtons];
 
 // millis Delay Variables
-unsigned long
+uint32_t
     currTime,                // current time
     moveTime,                // time when servo should move
     speedofservo;            // future code for varying speed
-unsigned long timedelay = 5; // let time delay equal 5 milliseconds for now
-unsigned long readtime = 5;
+const uint8_t timedelay = 5; // let time delay equal 5 milliseconds for now
+const uint8_t readtime = 5;
 
 // Servo Range defined by min, and MAX, also initial position
-int minRange[totalServos] = {500, 1150, 500, 500, 800, 950};
-int iniRange[totalServos] = {1800, 1300, 1400, 1500, 1700, 1500};
-int maxRange[totalServos] = {2300, 2200, 2300, 2500, 2300, 1800};
-int servoPos[totalServos] = {902, 147, 881, 512, 614, 663};
+const uint16_t minRange[totalServos] = {500, 1150, 500, 500, 800, 950};
+const uint16_t iniRange[totalServos] = {1800, 1300, 1400, 1500, 1700, 1500};
+const uint16_t maxRange[totalServos] = {2300, 2200, 2300, 2500, 2300, 1800};
+uint16_t servoPos[totalServos] = {902, 147, 881, 512, 614, 663};
 
-int v1;
-int gripperspeed = 3; // changes the speed of gripper open and close
+const uint8_t gripperspeed = 3; // changes the speed of gripper open and close
 
 void setup()
 {
     // attach the servos
-    for (int i = 0; i < totalServos; i++)
+    for (uint8_t i = 0; i < totalServos; i++)
         servoList[i].attach(servoPins[i], minRange[i], maxRange[i]);
 
     // obtain millis time
     moveTime = millis();
 
     // initialize switch pins
-    for (int i = 0; i < totalButtons; i++)
+    for (uint8_t i = 0; i < totalButtons; i++)
         pinMode(joySwitches[i], INPUT_PULLUP);
 
     // read switch pins
-    for (int i = 0; i < totalButtons; i++) 
+    for (uint8_t i = 0; i < totalButtons; i++) 
         newJoyState[i] = digitalRead(joySwitches[i]);
 
     // home the servo to initial position
-    for (int i = 0; i < totalServos; i++)
+    for (uint8_t i = 0; i < totalServos; i++)
         servoList[i].writeMicroseconds(iniRange[i]);
 }
 
@@ -65,7 +64,7 @@ void (*resetFunc)(void) = 0;
 
 void loop()
 {
-    for (int i = 0; i < totalButtons; i++) {
+    for (uint8_t i = 0; i < totalButtons; i++) {
         oldJoyState[i] = newJoyState[i];
         newJoyState[i] = digitalRead(joySwitches[i]);
     }
@@ -91,7 +90,7 @@ void readJoysticks()
     {                        // if the difference between move time and current time is the delay period, then
         moveTime = currTime; // update move time
 
-        for (int i = 0; i < totalServos; i++) {
+        for (uint8_t i = 0; i < totalServos; i++) {
             if (analogRead(joyPins[i]) > 800) 
                 (servoPos[i])++;
             else if (analogRead(joyPins[i] < 200))
@@ -106,7 +105,7 @@ void readJoysticks()
 
 void moveServos()
 {
-    for (int i = 0; i < totalServos; i++)
+    for (uint8_t i = 0; i < totalServos; i++)
         servoList[i].writeMicroseconds(posFinal[i]);
 }
 
@@ -116,13 +115,13 @@ void spin()
     delay(500);
     movePreset(5, 1495, 1000);
     movePreset(0, 2087, 500);
-    for (pos = 0; pos <= 180; pos += 1)
+    for (pos = 0; pos <= 180; pos++)
     { // goes from 0 degrees to 180 degrees
         // in steps of 1 degree
         servoList[0].write(pos); // tell servo to go to position in variable 'pos'
         delay(50);         // waits 15ms for the servo to reach the position
     }
-    for (pos = 180; pos >= 0; pos -= 1)
+    for (pos = 180; pos >= 0; pos--)
     {                      // goes from 180 degrees to 0 degrees
         servoList[0].write(pos); // tell servo to go to position in variable 'pos'
         delay(50);         // waits 15ms for the servo to reach the position
@@ -142,7 +141,7 @@ void wave()
     delay(500);
     movePreset(5, 1495, 1000);
     delay(1000);
-    for (int i = 0; i < 10; i++)
+    for (uint8_t i = 0; i < 10; i++)
     {
         for (pos = 0; pos <= 180; pos += 2)
         { // goes from 0 degrees to 180 degrees
@@ -196,9 +195,9 @@ void grabCan()
     resetFunc();
 }
 
-void movePreset(int servoNum, int startPos, int endPos)
+void movePreset(uint8_t servoNum, int16_t startPos, int16_t endPos)
 {
-    int dtime = 5;
+    uint8_t dtime = 5;
 
     if (endPos > startPos) {
         for (servoPos[servoNum] = startPos; servoPos[servoNum] != endPos; (servoPos[servoNum])++) {
